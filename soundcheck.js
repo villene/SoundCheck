@@ -64,6 +64,7 @@ function drawData(freqData){
     analyserContext.clearRect(0, 0, canvasWidth, canvasHeight);
     
     var NoteDraw;
+    analyserContext.strokeStyle='black';
     analyserContext.moveTo(canvasWidth,canvasHeight);
     analyserContext.lineTo(0,canvasHeight);
     analyserContext.lineTo(0,0);    
@@ -86,7 +87,7 @@ function drawData(freqData){
         
     analyserContext.lineWidth=3;
     analyserContext.font="12px Arial";  
-    analyserContext.strokeStyle='black';
+    
     
     for(var i=0; i<NoteObject.length; i++)
         {                       
