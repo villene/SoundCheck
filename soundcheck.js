@@ -131,7 +131,6 @@ function drawData(freqData){
     analyserContext.arc(canvasWidth-noteLocation+60*i,canvasHeight-(NoteDraw*10)-10,10,0,2*Math.PI);    
     analyserContext.fillText(freq, canvasWidth-noteLocation-14+60*i, canvasHeight-(NoteDraw*10)+18);   
     analyserContext.fillText(fullnote.step+fullnote.oct, canvasWidth-noteLocation-14+60*i, canvasHeight-(NoteDraw*10)+30);
-    analyserContext.fillText(noteLocation, 30, 30);
     analyserContext.stroke();
         }
          
