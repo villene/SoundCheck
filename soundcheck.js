@@ -9,6 +9,8 @@ var Note = null;
 var NoteObject = new Array();
 var noteLocation=0;
 var correctNotes=0;
+var heardPitchArray = new Array();
+var heardPitchCount=0;
 
 
 function getXML(){
@@ -42,10 +44,12 @@ function updateAnalysers(time) {
         var FreqElem = document.getElementById('frequency');
         var NoteElem = document.getElementById('note');
         var CorrectElem = document.getElementById('correct');
-        FreqElem.innerText=autoCorrelate(freqData);
         Note = frequencyToNote(autoCorrelate(freqData));
-        NoteElem.innerText=Note.step + Note.oct;
+        FreqElem.innerText=autoCorrelate(freqData);
+        NoteElem.innerText=Note.string;
+        heardPitchArray[heardPitchCount] = canvasHeight-((Note.oct*7+Note.note)*10)-10;       
         drawData(freqData);
+        heardPitchCount+=1;
         CorrectElem.innerText=correctNotes + '/' + NoteObject.length;
                 
     }    
@@ -62,7 +66,7 @@ function drawData(freqData){
         
     }
     analyserContext.clearRect(0, 0, canvasWidth, canvasHeight);
-    
+
     var NoteDraw;
     analyserContext.strokeStyle='black';
     analyserContext.moveTo(canvasWidth,canvasHeight);
@@ -71,12 +75,6 @@ function drawData(freqData){
     analyserContext.lineWidth = 3;    
     analyserContext.stroke();
     
-    for (var i=0; i<canvasWidth; i+=40)
-        {
-            analyserContext.moveTo(i,canvasHeight-5);
-            analyserContext.lineTo(i,canvasHeight+5);            
-        }    
-        
     for (var i=0; i<canvasHeight; i+=20)
         {
             analyserContext.moveTo(0,i);
@@ -85,9 +83,21 @@ function drawData(freqData){
     analyserContext.lineWidth = 1;    
     analyserContext.stroke();       
         
-    analyserContext.lineWidth=3;
-    analyserContext.font="12px Arial";  
+     
+    analyserContext.beginPath();
+    analyserContext.moveTo(canvasWidth/2-heardPitchCount*2, heardPitchArray[i]);
+    for (var i=0; i<heardPitchArray.length; i++){
+    analyserContext.lineTo(canvasWidth/2-heardPitchCount*2+2*i, heardPitchArray[i]);}
+    analyserContext.lineWidth=2;     
+    analyserContext.stroke();
     
+    analyserContext.beginPath();
+    analyserContext.arc(canvasWidth/2, canvasHeight-((Note.oct*7+Note.note)*10)-10, 5, 0,2*Math.PI);
+    analyserContext.stroke();
+    
+    analyserContext.font="12px Arial";
+    
+    Note = frequencyToNote(autoCorrelate(freqData));
     
     for(var i=0; i<NoteObject.length; i++)
         {                       
@@ -104,12 +114,12 @@ function drawData(freqData){
     analyserContext.beginPath();
     analyserContext.strokeStyle='black';
     var freq=noteToFrequency(NoteObject[i].octave, NoteObject[i].step);
-     var fullnote=frequencyToNote(freq);
+    var fullnote=frequencyToNote(freq);
     
-    if (canvasWidth-noteLocation+60*i<canvasWidth/2+10 && canvasWidth-noteLocation+60*i>canvasWidth/2-10 && NoteObject[i].correct!=true)
-        if(fullnote.step+fullnote.oct===Note.step+Note.oct){
+    if (canvasWidth-noteLocation+60*i<canvasWidth/2+10 && canvasWidth-noteLocation+60*i>canvasWidth/2-10 && NoteObject[i].correct!==true)
+        if(fullnote.string===Note.string){
             NoteObject[i].correct=true;
-            correctNotes++
+            correctNotes++;
         }
             
     if (canvasWidth-noteLocation+60*i<=canvasWidth/2-10 && NoteObject[i].correct===null)
@@ -121,10 +131,10 @@ function drawData(freqData){
     analyserContext.arc(canvasWidth-noteLocation+60*i,canvasHeight-(NoteDraw*10)-10,10,0,2*Math.PI);    
     analyserContext.fillText(freq, canvasWidth-noteLocation-14+60*i, canvasHeight-(NoteDraw*10)+18);   
     analyserContext.fillText(fullnote.step+fullnote.oct, canvasWidth-noteLocation-14+60*i, canvasHeight-(NoteDraw*10)+30);
+    analyserContext.fillText(noteLocation, 30, 30);
     analyserContext.stroke();
-   
-    analyserContext.fillRect(canvasWidth/2-10, canvasHeight, 20, -((Note.oct*7+Note.note)*10)+30 );
         }
+         
     noteLocation+=2;
 }
     
@@ -178,20 +188,20 @@ function frequencyToNote(freq){
 
     switch(note)
     {
-        case 1: {step='C'; break;}
-        case 2: {step='C♯/D♭'; break;}
-        case 3: {step='D'; break;}
-        case 4: {step='D♯/E♭'; break;}
-        case 5: {step='E'; break;}
-        case 6: {step='F'; break;}
-        case 7: {step='F♯/G♭'; break;}
-        case 8: {step='G'; break;}
-        case 9: {step='G♯/A♭'; break;}
-        case 10: {step='A'; break;}
-        case 11: {step='A♯/B♭'; break;}
-        case 0: {step='B'; oct--; break;}
+        case 1: {step='C'; note=1; break;}
+        case 2: {step='C♯/D♭';break;}
+        case 3: {step='D'; note=2; break;}
+        case 4: {step='D♯/E♭';break;}
+        case 5: {step='E'; note=3; break;}
+        case 6: {step='F'; note=4; break;}
+        case 7: {step='F♯/G♭';break;}
+        case 8: {step='G'; note=5; break;}
+        case 9: {step='G♯/A♭';break;}
+        case 10: {step='A'; note=6; break;}
+        case 11: {step='A♯/B♭';break;}
+        case 0: {step='B'; oct--; note=7; break;}
     }
-    return {step:step, oct:oct, note:note};
+    return {step:step, oct:oct, note:note, string:step+oct};
 }
 
 function noteToFrequency(oct, step){
